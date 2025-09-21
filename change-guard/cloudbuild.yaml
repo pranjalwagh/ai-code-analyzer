@@ -1,0 +1,93 @@
+# This Cloud Build pipeline is triggered by a pull request in your repository.
+# It orchestrates the entire impact analysis process.
+
+steps:
+  # Step 1: Deploy the backend Cloud Functions.
+  # This ensures the latest analysis logic is always available.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - orchestrator-function
+      - --project=${_PROJECT_ID}
+      - --region=${_REGION}
+      - --runtime=python311
+      - --source=./functions/orchestrator
+      - --entry-point=handler
+      - --trigger-http
+      - --allow-unauthenticated
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - java-parser-function
+      - --project=${_PROJECT_ID}
+      - --region=${_REGION}
+      - --runtime=python311
+      - --source=./functions/java_parser
+      - --entry-point=handler
+      - --trigger-http
+      - --allow-unauthenticated
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - gemini-augmenter-function
+      - --project=${_PROJECT_ID}
+      - --region=${_REGION}
+      - --runtime=python311
+      - --source=./functions/gemini_augmenter
+      - --entry-point=handler
+      - --trigger-http
+      - --allow-unauthenticated
+      - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
+
+  # Step 2: Invoke the Orchestrator function to start the analysis.
+  # We pass commit SHA, project ID, and repository details as arguments.
+  - name: 'gcr.io/cloud-builders/curl'
+    id: 'RunAnalysis'
+    args:
+      - '-X'
+      - 'POST'
+      - '-H'
+      - 'Content-Type: application/json'
+      - '-d'
+      - '{"commit_sha": "${_COMMIT_SHA}", "repo_name": "${_REPO_NAME}"}'
+      - 'https://_REGION}-${_PROJECT_ID}.cloudfunctions.net/orchestrator-function'
+
+  # Step 3: Deploy the frontend dashboard to Firebase Hosting.
+  - name: 'gcr.io/firebase/firebase'
+    args: ['deploy', '--project=${_PROJECT_ID}', '--only=hosting']
+    dir: 'frontend'
+
+  # Step 4: Post the results back to the GitHub pull request.
+  # This script will fetch the analysis result from Firestore and format it as a comment.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - './scripts/post_github_comment.sh'
+      - ${_PROJECT_ID}
+      - ${_COMMIT_SHA}
+      - ${_PR_NUMBER}
+      - ${_REPO_FULL_NAME}
+    secretEnv: ['GITHUB_TOKEN']
+
+# Define available secrets from Secret Manager
+availableSecrets:
+  secretManager:
+  - versionName: projects/${_PROJECT_ID}/secrets/github_token/versions/latest
+    env: 'GITHUB_TOKEN'
+
+# Define substitution variables that will be passed by the trigger.
+substitutions:
+  _PROJECT_ID: 'your-gcp-project-id'
+  _REGION: 'us-central1'
+  _COMMIT_SHA: 'HEAD'
+  _REPO_NAME: 'your-repo-name'
+  _PR_NUMBER: '0'
+  _REPO_FULL_NAME: 'owner/repo'

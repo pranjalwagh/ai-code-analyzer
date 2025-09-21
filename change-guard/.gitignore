@@ -1,0 +1,70 @@
+# =============================================================================
+#  Git Ignore File for Change-Guard Project
+# =============================================================================
+# This file tells Git which files and folders to intentionally ignore.
+
+# -----------------------------------------------------------------------------
+# General Development & IDE-specific files
+# -----------------------------------------------------------------------------
+
+# Ignore common IDE and editor folders
+.vscode/
+.idea/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# -----------------------------------------------------------------------------
+# Python Backend (Cloud Functions)
+# -----------------------------------------------------------------------------
+
+# Ignore all Python virtual environment folders
+# This is critical as they contain large numbers of files.
+venv/
+
+# Ignore Python bytecode and cache folders
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore distribution/build artifacts
+/dist/
+/build/
+*.egg-info/
+
+
+# -----------------------------------------------------------------------------
+# Node.js Frontend (React App)
+# -----------------------------------------------------------------------------
+
+# Ignore the entire node_modules directory in the frontend folder
+# This is the most important rule for any Node.js project.
+/frontend/node_modules
+
+# Ignore the production build output folder
+/frontend/build
+
+# Ignore local environment variables files
+# These often contain sensitive API keys and should never be committed.
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/.env
+
+# -----------------------------------------------------------------------------
+# Sensitive & Auto-Generated Files
+# -----------------------------------------------------------------------------
+
+# CRITICAL: Ignore the auto-generated Firebase config file.
+# This file contains your secret project credentials. Each developer
+# generates their own by running the local development script.
+/frontend/src/firebase.js

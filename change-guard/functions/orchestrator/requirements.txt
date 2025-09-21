@@ -1,0 +1,6 @@
+functions-framework==3.*
+google-cloud-firestore==2.*
+requests==2.*
+GitPython==3.*
+javalang==0.13.0
+esprima==4.0.1

@@ -13,7 +13,7 @@ steps:
       - --project=${_PROJECT_ID}
       - --region=${_REGION}
       - --runtime=python311
-      - --source=./functions/orchestrator
+      - --source=./change-guard/functions/orchestrator
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
@@ -27,7 +27,7 @@ steps:
       - --project=${_PROJECT_ID}
       - --region=${_REGION}
       - --runtime=python311
-      - --source=./functions/java_parser
+      - --source=./change-guard/functions/java_parser
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
@@ -41,7 +41,7 @@ steps:
       - --project=${_PROJECT_ID}
       - --region=${_REGION}
       - --runtime=python311
-      - --source=./functions/gemini_augmenter
+      - --source=./change-guard/functions/gemini_augmenter
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
@@ -58,19 +58,19 @@ steps:
       - 'Content-Type: application/json'
       - '-d'
       - '{"commit_sha": "${_COMMIT_SHA}", "repo_name": "${_REPO_NAME}"}'
-      - 'https://_REGION}-${_PROJECT_ID}.cloudfunctions.net/orchestrator-function'
+      - 'https://${_REGION}-${_PROJECT_ID}.cloudfunctions.net/orchestrator-function'
 
   # Step 3: Deploy the frontend dashboard to Firebase Hosting.
   - name: 'gcr.io/firebase/firebase'
     args: ['deploy', '--project=${_PROJECT_ID}', '--only=hosting']
-    dir: 'frontend'
+    dir: 'change-guard/frontend'
 
   # Step 4: Post the results back to the GitHub pull request.
   # This script will fetch the analysis result from Firestore and format it as a comment.
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args:
-      - './scripts/post_github_comment.sh'
+      - './change-guard/scripts/post_github_comment.sh'
       - ${_PROJECT_ID}
       - ${_COMMIT_SHA}
       - ${_PR_NUMBER}

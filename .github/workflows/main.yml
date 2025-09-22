@@ -35,7 +35,6 @@ jobs:
 
     - name: 'Trigger Cloud Build'
       run: |
-        # Correct path to cloudbuild.yaml (in the root directory)
         gcloud builds submit . \
           --config=cloudbuild.yaml \
-          --substitutions=_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},_COMMIT_SHA=${{ github.event.client_payload.commit }},_PR_NUMBER=${{ github.event.client_payload.pr_number }},_REPO_FULL_NAME=${{ github.event.client_payload.repo_name }}
+          --substitutions=_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},_REGION=asia-south1,_COMMIT_SHA=${{ github.event.client_payload.commit }},_PR_NUMBER=${{ github.event.client_payload.pr_number }},_REPO_NAME=${{ github.event.client_payload.repo_name }},_REPO_FULL_NAME=${{ github.event.client_payload.repo_name }}

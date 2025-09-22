@@ -35,7 +35,7 @@ def handler(request):
         "status": "Downloading repository"
     })
     
-    bucket_name = f"{project_id}.appspot.com"
+    bucket_name = "noble-cocoa-471417-k3.firebasestorage.app"
     bucket = storage_client.bucket(bucket_name)
     
     try:

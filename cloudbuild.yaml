@@ -17,6 +17,7 @@ steps:
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
+      - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:

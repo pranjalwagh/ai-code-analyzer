@@ -11,7 +11,7 @@ from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 # --- Configuration ---
-REPO_OWNER = "spring-projects"
+REPO_OWNER = "pranjalwagh"
 REPO_NAME = "spring-petclinic"
 GITHUB_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}"
 DB = firestore.Client()

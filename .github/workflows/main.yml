@@ -26,9 +26,16 @@ jobs:
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
 
+    - name: 'List files for debugging'
+      run: |
+        echo "Repository contents:"
+        ls -la
+        echo "Root cloudbuild.yaml exists:" 
+        ls -la cloudbuild.yaml || echo "Not found"
+
     - name: 'Trigger Cloud Build'
       run: |
-        # Run from the repository root, but point to the change-guard folder
-        gcloud builds submit change-guard \
-          --config=change-guard/cloudbuild.yaml \
+        # Correct path to cloudbuild.yaml (in the root directory)
+        gcloud builds submit . \
+          --config=cloudbuild.yaml \
           --substitutions=_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},_COMMIT_SHA=${{ github.event.client_payload.commit }},_PR_NUMBER=${{ github.event.client_payload.pr_number }},_REPO_FULL_NAME=${{ github.event.client_payload.repo_name }}

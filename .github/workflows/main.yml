@@ -1,36 +1,34 @@
 name: 'ChangeGuard CI Analysis'
 
-# --- FIX: Change the trigger ---
 on:
   repository_dispatch:
-    types: [run-analysis] # This must match the event-type from the trigger workflow
+    types: [run-analysis]
 
 permissions:
   contents: 'read'
   id-token: 'write'
-  pull-requests: 'write' 
+  pull-requests: 'write'
 
 jobs:
   build-and-analyze:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 'Checkout change-guard repository' # This now checks out the CORRECT repo
+    - name: 'Checkout ai-code-analyzer repository'
       uses: actions/checkout@v4
 
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
-        service_account: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
 
-    # --- FIX: Update the substitutions to use the dispatch payload ---
     - name: 'Trigger Cloud Build'
       run: |
-        gcloud builds submit . \
-          --config=cloudbuild.yaml \
+        # Run from the repository root, but point to the change-guard folder
+        gcloud builds submit change-guard \
+          --config=change-guard/cloudbuild.yaml \
           --substitutions=_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},_COMMIT_SHA=${{ github.event.client_payload.commit }},_PR_NUMBER=${{ github.event.client_payload.pr_number }},_REPO_FULL_NAME=${{ github.event.client_payload.repo_name }}

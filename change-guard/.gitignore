@@ -68,3 +68,4 @@ __pycache__/
 # This file contains your secret project credentials. Each developer
 # generates their own by running the local development script.
 /frontend/src/firebase.js
+secrate_key/

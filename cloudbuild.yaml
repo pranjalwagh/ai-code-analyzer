@@ -17,6 +17,8 @@ steps:
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
+      - --memory=1024MB  # <-- ADD THIS LINE
+      - --timeout=540s   # <-- ADD THIS LINE TOO
       - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'

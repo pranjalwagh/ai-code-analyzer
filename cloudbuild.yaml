@@ -1,9 +1,9 @@
 # This Cloud Build pipeline is triggered by a pull request in your repository.
 # It orchestrates the entire impact analysis process.
 
+
 steps:
-  # Step 1: Deploy the backend Cloud Functions.
-  # This ensures the latest analysis logic is always available.
+  # Deploy the minimal orchestrator
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - gcloud
@@ -17,8 +17,43 @@ steps:
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
-      - --memory=8192MB  # <-- ADD THIS LINE
-      - --timeout=540s   # <-- ADD THIS LINE TOO
+      - --memory=256MB
+      - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
+
+  # Deploy the downloader function
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - downloader-function
+      - --project=${_PROJECT_ID}
+      - --region=${_REGION}
+      - --runtime=python311
+      - --source=./change-guard/functions/downloader
+      - --entry-point=handler
+      - --trigger-http
+      - --allow-unauthenticated
+      - --memory=2048MB
+      - --timeout=540s
+      - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
+
+  # Deploy the impact analyzer function
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - impact-analyzer-function
+      - --project=${_PROJECT_ID}
+      - --region=${_REGION}
+      - --runtime=python311
+      - --source=./change-guard/functions/impact_analyzer
+      - --entry-point=handler
+      - --trigger-http
+      - --allow-unauthenticated
+      - --memory=2048MB
+      - --timeout=540s
       - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -34,6 +69,9 @@ steps:
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
+      - --memory=512MB
+      - --timeout=300s
+      - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
@@ -48,6 +86,8 @@ steps:
       - --entry-point=handler
       - --trigger-http
       - --allow-unauthenticated
+      - --memory=512MB
+      - --timeout=300s
       - --set-env-vars=GCP_PROJECT=${_PROJECT_ID},GCP_REGION=${_REGION}
 
   # Step 2: Invoke the Orchestrator function to start the analysis.

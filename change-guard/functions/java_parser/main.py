@@ -84,15 +84,7 @@ def get_method_body_hash(method_node):
     if not method_node.body:
         return None 
 
-    tokens = []
-    for statement in method_node.body:
-        if hasattr(statement, 'filter'):
-             # --- THIS IS THE FIX ---
-             # The correct class to filter for is javalang.tokenizer.JavaTokenizer
-             for token in statement.filter(javalang.tokenizer.JavaTokenizer):
-                tokens.append(token.value)
-
-    body_string = "".join(tokens)
+    body_str = str(method_node.body)
     return hashlib.sha256(body_string.encode('utf-8')).hexdigest()
 
 def diff_trees(tree_before, tree_after, filename):

@@ -85,9 +85,9 @@ availableSecrets:
 
 # Define substitution variables that will be passed by the trigger.
 substitutions:
-  _PROJECT_ID: 'your-gcp-project-id'
-  _REGION: 'us-central1'
+  _PROJECT_ID: 'noble-cocoa-471417-k3'
+  _REGION: 'asia-south1'
   _COMMIT_SHA: 'HEAD'
-  _REPO_NAME: 'your-repo-name'
+  _REPO_NAME: 'pranjalwagh/spring-petclinic'
   _PR_NUMBER: '0'
-  _REPO_FULL_NAME: 'owner/repo'
+  _REPO_FULL_NAME: 'pranjalwagh/spring-petclinic'
